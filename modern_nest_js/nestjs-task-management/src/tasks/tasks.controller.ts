@@ -9,7 +9,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
-import type { Task } from './task.model';
+import { Task } from './task.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskStatusDto } from './dto/upadate-task-status.dto';
 import { GetTaskFilterDto } from './dto/get-tasks-filter.dto';
@@ -21,48 +21,46 @@ export class TasksController {
   }
 
   @Get()
-  getAllTasks(@Query() filterDto: GetTaskFilterDto): Task[] {
-    if (Object.keys(filterDto).length)
-      return this.tasksService.getTasksWithFilters(filterDto);
-    return this.tasksService.getAllTasks();
+  async getTasks(@Query() filterDto: GetTaskFilterDto): Promise<Task[]> {
+    return this.tasksService.getTasks(filterDto);
   }
 
   @Get(':id')
-  getTaskById(@Param('id') id: string): Task | undefined {
+  getTaskById(@Param('id') id: string): Promise<Task> {
     return this.tasksService.getTaskById(id);
   }
 
-  //NOTE - Way to receive al the body
-  /*   @Post()
-  createTask(@Body() body): Task {} */
+  // //NOTE - Way to receive al the body
+  // /*   @Post()
+  // createTask(@Body() body): Task {} */
 
-  //NOTE - Receive each parameter
+  // //NOTE - Receive each parameter
 
-  /*  @Post()
-  createTask(
-    @Body('title') title: string,
-    @Body('description') description: string,
-  ): Task {
-    return this.tasksService.createTask(title, description);
-  } */
+  // /*  @Post()
+  // createTask(
+  //   @Body('title') title: string,
+  //   @Body('description') description: string,
+  // ): Task {
+  //   return this.tasksService.createTask(title, description);
+  // } */
 
-  //NOTE - Using DTO
+  // //NOTE - Using DTO
   @Post()
-  createTask(@Body() createTaskDto: CreateTaskDto): Task {
+  createTask(@Body() createTaskDto: CreateTaskDto): Promise<Task> {
     return this.tasksService.createTask(createTaskDto);
   }
 
   @Delete(':id')
-  deleteTask(@Param('id') id: string): void {
+  async deleteTask(@Param('id') id: string): Promise<void> {
     // Set the response status to 204 (No Content)
-    this.tasksService.deleteTask(id);
+    await this.tasksService.deleteTask(id);
   }
 
   @Patch(':id/status')
-  updateTaskStatus(
+  async updateTaskStatus(
     @Param('id') id: string,
     @Body() updateTaskStatusDto: UpdateTaskStatusDto,
-  ): Task | undefined {
-    return this.tasksService.updateTaskStatus(id, updateTaskStatusDto);
+  ): Promise<Task> {
+    return await this.tasksService.updateTaskStatus(id, updateTaskStatusDto);
   }
 }
